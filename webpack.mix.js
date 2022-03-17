@@ -17,7 +17,7 @@ if (!isProduction) mix.sourceMaps();
 
 
 
-mix.js('resources/js/app.js', 'public/js')
+mix.ts('resources/js/app.ts', 'public/js')
     .sass('resources/scss/app.scss', 'public/css/app.css')
     .vue()
     .webpackConfig({
