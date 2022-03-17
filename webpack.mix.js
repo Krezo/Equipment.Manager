@@ -11,7 +11,31 @@ const mix = require('laravel-mix');
  |
  */
 
+const isProduction = process.env.NODE_ENV === "production";
+
+if (!isProduction) mix.sourceMaps();
+
+
+
 mix.js('resources/js/app.js', 'public/js')
-    .postCss('resources/css/app.css', 'public/css', [
-        //
-    ]);
+    .sass('resources/scss/app.scss', 'public/css/app.css')
+    .vue()
+    .webpackConfig({
+        module: {
+            rules: [
+                {
+                    test: /\.pug$/,
+                    oneOf: [
+                        {
+                            resourceQuery: /^\?vue/,
+                            use: ['pug-plain-loader']
+                        },
+                        {
+                            use: ['raw-loader', 'pug-plain-loader']
+                        }
+                    ]
+                }
+            ]
+        }
+    })
+
