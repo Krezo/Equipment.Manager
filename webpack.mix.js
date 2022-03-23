@@ -1,5 +1,5 @@
 const mix = require('laravel-mix');
-
+const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 /*
  |--------------------------------------------------------------------------
  | Mix Asset Management
@@ -18,8 +18,10 @@ if (!isProduction) mix.sourceMaps();
 
 
 mix.ts('resources/js/app.ts', 'public/js')
+    // .ts('resources/js/api.ts', 'public/js')
     .sass('resources/scss/app.scss', 'public/css/app.css')
     .vue()
+    .copy('node_modules/@coreui/coreui/dist/css/coreui.min.css', 'public/css')
     .webpackConfig({
         module: {
             rules: [
@@ -36,6 +38,9 @@ mix.ts('resources/js/app.ts', 'public/js')
                     ]
                 }
             ]
+        },
+        resolve: {
+            plugins: [new TsconfigPathsPlugin()]
         }
     })
 

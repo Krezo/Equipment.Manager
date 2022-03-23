@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\EquipmentController;
+use App\Http\Controllers\EquipmentTypeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -14,6 +16,13 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::get('equipment/s', [EquipmentController::class, 'search']);
+Route::apiResource('equipment', EquipmentController::class);
+Route::apiResource('equipment_type', EquipmentTypeController::class);
+
+
+Route::fallback(function (Request $request) {
+  return response()->json([
+    'message' => 'Wrong api path'
+  ], 404);
 });
