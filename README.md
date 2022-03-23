@@ -2,8 +2,8 @@
 
 ## install
 
-frontned
-npm run prod
+frontned  
+npm run prod  
 
 backend
 php artisan migration --seed  
