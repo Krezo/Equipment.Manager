@@ -5,7 +5,7 @@
 frontned  
 npm run prod  
 
-backend
+backend  
 php artisan migration --seed  
 php artisan serve  
 
