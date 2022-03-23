@@ -3,12 +3,12 @@
 ## install
 composer install  
 
-### frontned  
+### frontned
 npm run prod  
 
-### backend  
+### backend
 php artisan migration --seed  
 php artisan serve  
 
-### testing  
+### testing
 php artisan test  
