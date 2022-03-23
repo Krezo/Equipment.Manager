@@ -8,7 +8,7 @@ npm install
 npm run prod  
 
 ### backend
-php artisan migration --seed  
+php artisan migrate --seed  
 php artisan serve  
 
 ### testing
