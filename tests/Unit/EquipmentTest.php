@@ -99,14 +99,27 @@ class EquipmentsTest extends TestsTestCase
             'remark' => 'test_remark_3'
         ];
         $validTest1ArraySNEqiupmentData = [
-            $equipmentType1->id,
+            'equipment_type_id' => $equipmentType1->id,
             'serial_number' => [
-                'A0ZBC9a0@0b56',
+                'T1ZBC9a0@0b56',
                 'A9ZGF9a0_0c11',
                 'A6ZHT1a0-0r72'
             ],
             'remark' => null
         ];
+
+        $validTest1ArraySNDublicateEqiupmentData = [
+            'equipment_type_id' => $equipmentType1->id,
+            'serial_number' => [
+                'T1ZBT1a7@0b56',
+                'T1ZBT1a7@0b56',
+                'G6ZFH6y0-0r72'
+            ],
+            'remark' => null
+        ];
+
+
+
 
         // Проверка на обязательные поля
         $this->postJson('/api/equipment', [])->assertStatus(422);
@@ -158,6 +171,11 @@ class EquipmentsTest extends TestsTestCase
         $this->postJson('/api/equipment', array_merge([
             'equipment_type_id' => $equipmentType3->id
         ], $validTest3EqiupmentData))
+            ->assertStatus(201);
+
+        $this->postJson('/api/equipment', $validTest1ArraySNEqiupmentData)
+            ->assertStatus(201);
+        $this->postJson('/api/equipment', $validTest1ArraySNDublicateEqiupmentData)
             ->assertStatus(201);
     }
 }
