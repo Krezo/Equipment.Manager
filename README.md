@@ -1,13 +1,15 @@
 # test-task
 
 ## install
+composer install  
+npm install  
 
-frontned
-npm run prod
+### frontned
+npm run prod  
 
-backend
-php artisan migration --seed
-php artisan serve
+### backend
+php artisan migration --seed  
+php artisan serve  
 
-testing
-php artisan test
+### testing
+php artisan test  
