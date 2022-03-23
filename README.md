@@ -6,8 +6,8 @@ frontned
 npm run prod
 
 backend
-php artisan migration --seed__
-php artisan serve__
+php artisan migration --seed  
+php artisan serve  
 
-testing
-php artisan test
+testing  
+php artisan test  
