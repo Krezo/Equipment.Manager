@@ -1,7 +1,8 @@
 # test-task
 
 ## install
-composer install  
+composer install 
+npm install  
 
 ### frontned
 npm run prod  
