@@ -18,7 +18,7 @@
             <CTableDataCell
               ><CFormInput
                 type="text"
-                v-model="searchSerialNumber"
+                v-model.trim="searchSerialNumber"
                 placeholder="Поиск по сер.номеру"
             /></CTableDataCell>
             <CTableDataCell></CTableDataCell>
@@ -33,16 +33,12 @@
               <CTableDataCell>
                 <CFormSelect
                   v-if="this.isEditMode && this.isEditEquipmentIndex === index"
-                  aria-label="Default select example"
+                  v-model="equipment.equipment_type_id"
                   :options="equipmentOptions"
                 >
                 </CFormSelect>
                 <span v-else>
-                  {{
-                    $store.state.equipmentTypes.find(
-                      (eqt) => eqt.id === equipment.equipment_type_id
-                    ).name
-                  }}</span
+                  {{ getEquipmentTypeName(equipment.equipment_type_id) }}</span
                 >
               </CTableDataCell>
               <CTableDataCell>
@@ -151,6 +147,13 @@ export default defineComponent({
   },
   components: { VPaginator },
   methods: {
+    getEquipmentTypeName(equipment_type_id: number | string) {
+      if (this.$store.state.equipmentTypes.length === 0) return;
+      const eq = this.$store.state.equipmentTypes.find(
+        (eqt) => eqt.id.toString() === equipment_type_id.toString()
+      );
+      return eq.name;
+    },
     async loadEquipment(page = 1) {
       try {
         if (this.isChangePage) return;
@@ -181,6 +184,7 @@ export default defineComponent({
       this.loadEquipment(page);
     },
     async searchEquipemnt(serualNumber: string) {
+      this.isEditMode = false;
       this.isChangePage = true;
       const apiResponse = (
         await api.services.equipment.search({

@@ -16,7 +16,7 @@ class CreateEquipmentsTable extends Migration
         Schema::create('equipments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('equipment_type_id')->constrained();
-            $table->string('serial_number', 20)->unique();
+            $table->string('serial_number', 20)->unique()->collation('utf8mb4_bin');
             $table->text('remark')->nullable();
             $table->timestamps();
         });

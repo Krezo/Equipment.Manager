@@ -36,8 +36,10 @@ class EquipmentController extends Controller
     {
         // Если флаг установлен, то ошбикбки валидации не прерывают дальнейющую обработку (валидные данные добавляются!)
         // Ошибки сохраняются в переменной $errorBug
-        $withErrorBug = true;
+        $withErrorBug = false;
         $errorBug = [];
+        // Если флаг установлен, то дублированные серийные номера в массиве удаляются
+        $duplicateArraySerialNumber = true;
 
         // Правила валидации для серийного номера
         $serialNumberRules = ["bail", "string", "max:20", new EquipmentUnqiueSerialNumberRule, new EquipmentValidSerialNumberRule];
@@ -52,6 +54,7 @@ class EquipmentController extends Controller
         // Определяем массовое заполнение
         // serial_number массив
         if (is_array($equpmentValidatedData["serial_number"])) {
+            if ($duplicateArraySerialNumber) $equpmentValidatedData["serial_number"] = array_unique($equpmentValidatedData["serial_number"]);
             // Проверяем перед началом заполнения весь список серийных номером на уникальность
             if (!$withErrorBug) {
                 // Проверяем сразу весь массив серийных номеров на уникальность
@@ -64,9 +67,11 @@ class EquipmentController extends Controller
                         "serial_number" => $serialNumber
                     ]));
                 }
+                return response()->json([], 201);
             }
             // Проверям каждый серийный номер отдельно, при ошибке сохраняем сообщение в массив $errorBug
             else {
+                if ($duplicateArraySerialNumber) $equpmentValidatedData["serial_number"] = array_unique($equpmentValidatedData["serial_number"]);
                 foreach ($equpmentValidatedData["serial_number"] as $i => $serialNumber) {
                     try {
                         $request->validate([
@@ -91,6 +96,7 @@ class EquipmentController extends Controller
             "serial_number" => $serialNumberRules
         ]);
         Equipment::create($equpmentValidatedData);
+        return response()->json([], 201);
     }
 
     /**

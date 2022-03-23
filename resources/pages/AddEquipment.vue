@@ -169,7 +169,7 @@ export default defineComponent({
       const equipmentTypesOptions = this.$store.state.equipmentTypes.map(
         (eq) => ({
           value: eq.id.toString(),
-          label: eq.name,
+          label: `${eq.name} [${eq.mask}]`,
         })
       );
       return [
