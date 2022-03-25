@@ -33,12 +33,12 @@
               <CTableDataCell>
                 <CFormSelect
                   v-if="this.isEditMode && this.isEditEquipmentIndex === index"
-                  v-model="equipment.equipment_type_id"
+                  v-model="equipment.equipment_type.id"
                   :options="equipmentOptions"
                 >
                 </CFormSelect>
                 <span v-else>
-                  {{ getEquipmentTypeName(equipment.equipment_type_id) }}</span
+                  {{ getEquipmentTypeName(equipment.equipment_type.id) }}</span
                 >
               </CTableDataCell>
               <CTableDataCell>
@@ -242,7 +242,7 @@ export default defineComponent({
           this.equipments[saveEquipmentIndex].id,
           {
             equipment_type_id:
-              this.equipments[saveEquipmentIndex].equipment_type_id,
+              this.equipments[saveEquipmentIndex].equipment_type.id,
             serial_number: this.equipments[saveEquipmentIndex].serial_number,
             remark: this.equipments[saveEquipmentIndex].remark || null,
           }

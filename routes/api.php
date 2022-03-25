@@ -16,7 +16,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('equipment/s', [EquipmentController::class, 'search']);
 Route::apiResource('equipment', EquipmentController::class);
 Route::apiResource('equipment_type', EquipmentTypeController::class);
 

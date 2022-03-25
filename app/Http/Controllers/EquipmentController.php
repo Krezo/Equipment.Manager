@@ -14,19 +14,21 @@ use Illuminate\Validation\ValidationException;
 
 class EquipmentController extends Controller
 {
+
     /**
      * Display a listing of the resource.
      *
+     * @param  Request $request
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
     {
-        $searchEquipment = Equipment::query();
+        $searchEquipment = Equipment::with('equipmentType');
         $searchValidatedData = $request->validate([
             'serial_number' => ["bail", "string", "max:20"],
         ]);
         if (isset($searchValidatedData['serial_number'])) {
-            $searchEquipment->where('serial_number', 'like', $searchValidatedData['serial_number']);
+            $searchEquipment->where('serial_number', 'like', "%" . $searchValidatedData['serial_number'] . "%");
         }
         return EquipmentResource::collection(
             $searchEquipment->paginate($request->get('per_page') ?: 30)->withQueryString()
@@ -41,69 +43,22 @@ class EquipmentController extends Controller
      */
     public function store(Request $request)
     {
-        // Если флаг установлен, то ошбикбки валидации не прерывают дальнейющую обработку (валидные данные добавляются!)
-        // Ошибки сохраняются в переменной $errorBug
-        $withErrorBug = false;
-        $errorBug = [];
-        // Если флаг установлен, то дублированные серийные номера в массиве удаляются
-        $duplicateArraySerialNumber = true;
-
-        // Правила валидации для серийного номера
-        $serialNumberRules = ["bail", "string", "max:20", new EquipmentUnqiueSerialNumberRule, new EquipmentValidSerialNumberRule];
-
         // Первичная валидация
-        $equpmentValidatedData = $request->validate([
+        $equipmentInstance = new Equipment($request->validate([
             "equipment_type_id" => ["bail", "required", "integer", "exists:equipment_types,id"],
-            "serial_number" => ["bail", "required", new StringOrArrayRule],
             "remark" => ["nullable", "string"],
+        ]));
+        // Определем массовое заполнение
+        $serialNumberRequestData = $request->validate([
+            "serial_number" => ["bail", "required", new StringOrArrayRule]
         ]);
-
-        // Определяем массовое заполнение
-        // serial_number массив
-        if (is_array($equpmentValidatedData["serial_number"])) {
-            if ($duplicateArraySerialNumber) $equpmentValidatedData["serial_number"] = array_unique($equpmentValidatedData["serial_number"]);
-            // Проверяем перед началом заполнения весь список серийных номером на уникальность
-            if (!$withErrorBug) {
-                // Проверяем сразу весь массив серийных номеров на уникальность
-                $request->validate([
-                    "serial_number.*" => $serialNumberRules
-                ]);
-                // Добавляем в БД
-                foreach ($equpmentValidatedData["serial_number"] as $serialNumber) {
-                    Equipment::create(array_merge($equpmentValidatedData, [
-                        "serial_number" => $serialNumber
-                    ]));
-                }
-                return response()->json([], 201);
-            }
-            // Проверям каждый серийный номер отдельно, при ошибке сохраняем сообщение в массив $errorBug
-            else {
-                if ($duplicateArraySerialNumber) $equpmentValidatedData["serial_number"] = array_unique($equpmentValidatedData["serial_number"]);
-                foreach ($equpmentValidatedData["serial_number"] as $i => $serialNumber) {
-                    try {
-                        $request->validate([
-                            "serial_number.$i" => $serialNumberRules
-                        ]);
-                        // Добавляем в БД
-                        Equipment::create(array_merge($equpmentValidatedData, [
-                            "serial_number" => $serialNumber
-                        ]));
-                    } catch (ValidationException $th) {
-                        if ($withErrorBug) {
-                            $errorBug = array_merge($errorBug, $th->errors());
-                        } else throw $th;
-                    }
-                }
-                if (count($errorBug) > 0) throw ValidationException::withMessages($errorBug);
-            }
-            return;
+        if (is_array($serialNumberRequestData["serial_number"])) {
+            return response()->json($equipmentInstance->bulkStoreSerialNumbers($serialNumberRequestData["serial_number"]), 201);
         }
-        // Если serial_number строка
-        $request->validate([
-            "serial_number" => $serialNumberRules
-        ]);
-        Equipment::create($equpmentValidatedData);
-        return response()->json([], 201);
+        $equipmentInstance->serial_number = $request->validate([
+            'serial_number' => ["bail", "string", "max:20", 'unique:equipments', new EquipmentValidSerialNumberRule]
+        ])['serial_number']->save();
+        return response()->json($equipmentInstance, 201);
     }
 
     /**
@@ -114,7 +69,7 @@ class EquipmentController extends Controller
      */
     public function show($id)
     {
-        return new EquipmentResource(Equipment::findOrFail($id)->with('equipment_type'));
+        return new EquipmentResource(Equipment::with('equipmentType')->findOrFail($id));
     }
 
     /**
@@ -126,11 +81,11 @@ class EquipmentController extends Controller
      */
     public function update(Request $request, $id)
     {
-        // $findedEquipment нежуен для передачи в правило EquipmentUnqiueSerialNumberRule
+        // $findedEquipment нужен для передачи в правило EquipmentUnqiueSerialNumberRule
         $findedEquipment = Equipment::findOrFail($id);
         $findedEquipment->update($request->validate([
             "equipment_type_id" => ["bail", "integer", "exists:equipment_types,id"],
-            "serial_number" => ["bail", "string", "max:20", (new EquipmentUnqiueSerialNumberRule)->setIngnoreId($findedEquipment->id), new EquipmentValidSerialNumberRule],
+            "serial_number" => ["bail", "string", "max:20",  Rule::unique('equipments')->ignore($findedEquipment->id), new EquipmentValidSerialNumberRule],
             "remark" => ["nullable", "string"]
         ]));
     }

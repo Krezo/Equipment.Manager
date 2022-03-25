@@ -1,18 +1,18 @@
-import { ApiResourceWrapper, Equipment, EquipmentType, StoreEquipment, IApiError, KeyValue, IPaginatorRequestParams, IPaginatorData, ApiResourcePaginationWrapper } from './types';
+import { ApiResourceWrapper, Equipment, EquipmentType, ModelEquipment, IApiError, KeyValue, IPaginatorRequestParams, IPaginatorData, ApiResourcePaginationWrapper } from './types';
 import axios, { AxiosError, AxiosInstance, AxiosResponse, } from "axios";
 const axiosInstance = axios.create({
   baseURL: "/api",
   withCredentials: true
 });
 
-class RestService<ResponseData>  {
+class RestService<ResponseData, Model>  {
   constructor(public axiosInstance: AxiosInstance, public endpoint: string) { }
   async getAll(params?: IPaginatorRequestParams & KeyValue<unknown>): Promise<AxiosResponse<ApiResourcePaginationWrapper<ResponseData[]>>> {
     return await this.axiosInstance.get(this.endpoint, {
       params
     })
   }
-  async store(data: Omit<ResponseData, 'id'>): Promise<AxiosResponse<void>> {
+  async store(data: Model): Promise<AxiosResponse<void>> {
     return await this.axiosInstance.post(this.endpoint, data);
   }
   async show(id: number): Promise<ApiResourceWrapper<ResponseData>> {
@@ -20,7 +20,7 @@ class RestService<ResponseData>  {
       params: { id }
     })
   }
-  async update(id: number, data: Omit<ResponseData, 'id'>): Promise<AxiosResponse<ApiResourceWrapper<ResponseData>>> {
+  async update(id: number, data: Omit<Model, 'id'>): Promise<AxiosResponse<ApiResourceWrapper<ResponseData>>> {
     return await this.axiosInstance.patch(`${this.endpoint}/${id}`, data);
   }
   async delete(id: number): Promise<void> {
@@ -28,7 +28,7 @@ class RestService<ResponseData>  {
   }
 }
 
-class EquipmentTypeService extends RestService<EquipmentType> {
+class EquipmentTypeService extends RestService<EquipmentType, EquipmentType> {
   constructor(public axiosInstance: AxiosInstance) {
     super(axiosInstance, 'equipment_type');
   }
@@ -39,15 +39,15 @@ interface EquipmentServiceSearchData extends IPaginatorRequestParams {
   serial_number: string | null
 }
 
-class EquipmentService extends RestService<Equipment> {
+class EquipmentService extends RestService<Equipment, ModelEquipment> {
   constructor(public axiosInstance: AxiosInstance) {
     super(axiosInstance, 'equipment');
   }
-  async store(data: Omit<StoreEquipment, 'id'>): Promise<AxiosResponse<void>> {
+  async store(data: Omit<ModelEquipment, 'id'>): Promise<AxiosResponse<void>> {
     return await this.axiosInstance.post(this.endpoint, data);
   }
   async search(params: EquipmentServiceSearchData): Promise<AxiosResponse<ApiResourcePaginationWrapper<Equipment[]>>> {
-    return await this.axiosInstance.get(`${this.endpoint}/s`, {
+    return await this.axiosInstance.get(`${this.endpoint}`, {
       params
     });
   }

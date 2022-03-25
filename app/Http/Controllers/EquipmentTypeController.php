@@ -26,7 +26,10 @@ class EquipmentTypeController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        return new EquipmentTypeResource(EquipmentType::create($request->validate([
+            'name' => ['required', 'string'],
+            'mask' => ['required', 'string', 'max:20'],
+        ])));
     }
 
     /**
@@ -37,7 +40,7 @@ class EquipmentTypeController extends Controller
      */
     public function show($id)
     {
-        //
+        return new EquipmentType(EquipmentType::findOrFail($id));
     }
 
     /**
@@ -49,7 +52,12 @@ class EquipmentTypeController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        return new EquipmentTypeResource(EquipmentType::findOrFail($id)->update(
+            $request->validate([
+                'name' => ['required', 'string'],
+                'mask' => ['required', 'string', 'max:20'],
+            ])
+        ));
     }
 
     /**
@@ -60,6 +68,6 @@ class EquipmentTypeController extends Controller
      */
     public function destroy($id)
     {
-        //
+        EquipmentType::findOrFail($id)->delete();
     }
 }

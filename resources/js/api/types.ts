@@ -42,12 +42,12 @@ export interface IPaginatorLinks {
 
 export interface Equipment {
   id: number,
-  equipment_type_id: number,
+  equipment_type: EquipmentType,
   serial_number: string,
   remark: string | null,
 }
 
-export interface StoreEquipment {
+export interface ModelEquipment {
   id: number,
   equipment_type_id: number,
   serial_number: string | string[],
