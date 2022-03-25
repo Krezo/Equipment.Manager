@@ -107,7 +107,7 @@ class EquipmentController extends Controller
      */
     public function show($id)
     {
-        return new EquipmentResource(Equipment::findOrFail($id));
+        return new EquipmentResource(Equipment::findOrFail($id)->with('equipment_type'));
     }
 
     /**
@@ -119,13 +119,13 @@ class EquipmentController extends Controller
      */
     public function update(Request $request, $id)
     {
+        // $findedEquipment нежуен для передачи в правило EquipmentUnqiueSerialNumberRule
         $findedEquipment = Equipment::findOrFail($id);
-        $updatedValidationData = $request->validate([
+        $findedEquipment->update($request->validate([
             "equipment_type_id" => ["bail", "integer", "exists:equipment_types,id"],
             "serial_number" => ["bail", "string", "max:20", (new EquipmentUnqiueSerialNumberRule)->setIngnoreId($findedEquipment->id), new EquipmentValidSerialNumberRule],
             "remark" => ["nullable", "string"]
-        ]);
-        $findedEquipment->update($updatedValidationData);
+        ]));
     }
 
     /**
