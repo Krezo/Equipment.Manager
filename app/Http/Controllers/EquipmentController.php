@@ -57,7 +57,8 @@ class EquipmentController extends Controller
         }
         $equipmentInstance->serial_number = $request->validate([
             'serial_number' => ["bail", "string", "max:20", 'unique:equipments', new EquipmentValidSerialNumberRule]
-        ])['serial_number']->save();
+        ])['serial_number'];
+        $equipmentInstance->save();
         return response()->json($equipmentInstance, 201);
     }
 
