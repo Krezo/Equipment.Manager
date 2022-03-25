@@ -21,8 +21,15 @@ class EquipmentController extends Controller
      */
     public function index(Request $request)
     {
+        $searchEquipment = Equipment::query();
+        $searchValidatedData = $request->validate([
+            'serial_number' => ["bail", "string", "max:20"],
+        ]);
+        if (isset($searchValidatedData['serial_number'])) {
+            $searchEquipment->where('serial_number', 'like', $searchValidatedData['serial_number']);
+        }
         return EquipmentResource::collection(
-            Equipment::paginate($request->get('per_page') ?: 30)->withQueryString()
+            $searchEquipment->paginate($request->get('per_page') ?: 30)->withQueryString()
         );
     }
 
@@ -137,21 +144,5 @@ class EquipmentController extends Controller
     public function destroy($id)
     {
         Equipment::findOrFail($id)->delete();
-    }
-
-    public function search(Request $request)
-    {
-        $equipmentSearch = Equipment::query();
-        $request->validate([
-            // "equipment_type_id" => ["bail","integer", "exists:equipment_types,id"],
-            'serial_number' => ["bail", "string", "max:20"],
-            // "remark" => ["nullable", "string"]
-        ]);
-        if ($searchSerialNumber = $request->get('serial_number')) {
-            $equipmentSearch->where('serial_number', 'like', "%$searchSerialNumber%");
-        }
-        return EquipmentResource::collection(
-            $equipmentSearch->paginate($request->get('per_page') ?: 30)->withQueryString()
-        );
     }
 }
